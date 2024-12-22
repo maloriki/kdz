@@ -1,0 +1,30 @@
+-- dds.flights определение
+
+-- Drop table
+
+-- DROP TABLE dds.flights;
+
+CREATE TABLE dds.flights (
+	"year" int2 NULL,
+	quarter int2 NULL,
+	"month" int2 NULL,
+	flight_scheduled_date date NULL,
+	flight_actual_date date NULL,
+	flight_dep_scheduled_ts timestamp NOT NULL,
+	flight_dep_actual_ts timestamp NULL,
+	report_airline bpchar(3) NOT NULL,
+	tail_number varchar(10) NOT NULL,
+	flight_number_reporting_airline varchar(15) NOT NULL,
+	airport_origin_dk int4 NULL,
+	origin_code bpchar(3) NOT NULL,
+	airport_dest_dk int4 NULL,
+	dest_code bpchar(3) NOT NULL,
+	dep_delay_minutes float4 NULL,
+	cancelled bool NOT NULL,
+	cancellation_code bpchar(1) NULL,
+	weather_delay float4 NULL,
+	air_time float4 NULL,
+	distance float4 NULL,
+	dds_loaded_ts timestamp NULL DEFAULT now(),
+	CONSTRAINT dds_flights_pk PRIMARY KEY (flight_dep_scheduled_ts, flight_number_reporting_airline, origin_code, dest_code)
+);
