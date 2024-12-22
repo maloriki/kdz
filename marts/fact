@@ -1,0 +1,24 @@
+-- marts.fact исходный текст
+
+CREATE OR REPLACE VIEW marts.fact
+AS SELECT f.origin_code,
+    f.dest_code,
+    wc.weather_condition_description AS weather_type_name,
+    wc.temperature,
+    wc.wind_speed,
+    wc.visibility,
+    wc.date_start AS weather_start,
+    wc.date_end AS weather_end,
+    f.flight_dep_scheduled_ts AS flight_scheduled_ts,
+    f.flight_dep_actual_ts AS flight_actual_time,
+    f.flight_number_reporting_airline AS flight_number,
+    f.distance,
+    f.tail_number,
+    f.report_airline AS airline,
+    f.dep_delay_minutes AS dep_delay_min,
+    f.cancelled,
+    f.cancellation_code,
+    f.air_time
+   FROM dds.flights f
+     JOIN marts.weather_condition wc ON f.flight_dep_scheduled_ts >= wc.date_start AND f.flight_dep_scheduled_ts <= (wc.date_start + '01:00:00'::interval) AND f.airport_origin_dk = wc.airport_id
+  WHERE f.airport_origin_dk = wc.airport_id;
