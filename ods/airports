@@ -1,0 +1,13 @@
+-- ods.airports определение
+
+-- Drop table
+
+-- DROP TABLE ods.airports;
+
+CREATE TABLE ods.airports (
+	id serial4 NOT NULL,
+	icao_code varchar(10) NOT NULL,
+	iata_code varchar(10) NOT NULL,
+	"name" varchar(100) NOT NULL,
+	CONSTRAINT airports_pkey PRIMARY KEY (id)
+);
