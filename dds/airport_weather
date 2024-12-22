@@ -1,0 +1,17 @@
+-- dds.airport_weather определение
+
+-- Drop table
+
+-- DROP TABLE dds.airport_weather;
+
+CREATE TABLE dds.airport_weather (
+	airport_id int4 NOT NULL,
+	weather_type varchar(50) NULL,
+	temperature float4 NULL,
+	wind_speed float4 NULL,
+	visibility float4 NULL,
+	date_start timestamp NOT NULL,
+	date_end timestamp NOT NULL,
+	dds_loaded_ts timestamp NULL DEFAULT now(),
+	CONSTRAINT dds_airport_weather_pk PRIMARY KEY (airport_id, date_start)
+);
