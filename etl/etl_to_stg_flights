@@ -1,0 +1,65 @@
+-- DROP PROCEDURE etl.elt_to_stg_flights();
+
+CREATE OR REPLACE PROCEDURE etl.elt_to_stg_flights()
+ LANGUAGE plpgsql
+AS $procedure$
+BEGIN
+    -- Удаляем данные из stg.flights перед загрузкой новых
+    DELETE FROM stg.flights;
+
+    -- Переносим данные из ods.flights в stg.flights, заменяя NULL значениями по умолчанию
+    INSERT INTO stg.flights (
+        "year",
+        quarter,
+        "month",
+        flight_date,
+        dep_time,
+        crs_dep_time,
+        air_time,
+        dep_delay_minutes,
+        cancelled,
+        cancellation_code,
+        weather_delay,
+        reporting_airline,
+        tail_number,
+        flight_number,
+        distance,
+        origin,
+        dest,
+        stg_loaded_ts
+    )
+    SELECT
+        COALESCE("year", EXTRACT(YEAR FROM CURRENT_DATE))::int4, 
+        COALESCE(quarter, 1),                                    
+        COALESCE("month", EXTRACT(MONTH FROM CURRENT_DATE))::int4, 
+        COALESCE(flight_date, CURRENT_DATE),                  
+        COALESCE(dep_time, '00:00'::time),                       
+        COALESCE(crs_dep_time, '00:00'::time),                 
+        COALESCE(air_time, '00:00:00'::interval),               
+        COALESCE(dep_delay_minutes, 0)::float8,                 
+        COALESCE(cancelled, false),                             
+        COALESCE(cancellation_code, ' ')::bpchar,              
+        COALESCE(weather_delay, 0),                             
+        COALESCE(reporting_airline, 'Unknown'),                 
+        COALESCE(tail_number, 'UNKNOWN'),                       
+        COALESCE(flight_number, '0000'),                        
+        COALESCE(distance, 0),                                 
+        COALESCE(origin, 'UNKNOWN'),                            
+        COALESCE(dest, 'UNKNOWN'),                             
+        now()                                                 
+    FROM ods.flights
+    ON CONFLICT (flight_date, flight_number, origin, dest, crs_dep_time) 
+    DO UPDATE SET
+        dep_time = EXCLUDED.dep_time,
+        air_time = EXCLUDED.air_time,
+        dep_delay_minutes = EXCLUDED.dep_delay_minutes,
+        cancelled = EXCLUDED.cancelled,
+        cancellation_code = EXCLUDED.cancellation_code,
+        weather_delay = EXCLUDED.weather_delay,
+        reporting_airline = EXCLUDED.reporting_airline,
+        tail_number = EXCLUDED.tail_number,
+        distance = EXCLUDED.distance,
+        stg_loaded_ts = now();
+END;
+$procedure$
+;
