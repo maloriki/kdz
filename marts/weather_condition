@@ -1,0 +1,40 @@
+-- marts.weather_condition исходный текст
+
+CREATE OR REPLACE VIEW marts.weather_condition
+AS SELECT airport_id,
+    weather_type,
+    concat_ws(', '::text,
+        CASE
+            WHEN weather_type::text ~~* '%light rain%'::text THEN 'слабый дождь'::text
+            ELSE NULL::text
+        END,
+        CASE
+            WHEN weather_type::text ~~* '%thunderstorm%'::text THEN 'гроза'::text
+            ELSE NULL::text
+        END,
+        CASE
+            WHEN weather_type::text ~~* '%light drizzle%'::text THEN 'слабая изморось'::text
+            ELSE NULL::text
+        END,
+        CASE
+            WHEN weather_type::text ~~* '%mist%'::text THEN 'туман'::text
+            ELSE NULL::text
+        END,
+        CASE
+            WHEN weather_type::text ~~* '%haze%'::text THEN 'дымка'::text
+            ELSE NULL::text
+        END,
+        CASE
+            WHEN weather_type::text ~~* '%smoke%'::text THEN 'дым'::text
+            ELSE NULL::text
+        END,
+        CASE
+            WHEN weather_type IS NULL OR weather_type::text = ''::text THEN 'хорошая погода'::text
+            ELSE NULL::text
+        END) AS weather_condition_description,
+    temperature,
+    wind_speed,
+    visibility,
+    date_start,
+    date_end
+   FROM dds.airport_weather w;
