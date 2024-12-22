@@ -1,0 +1,26 @@
+-- ods.flights определение
+
+-- Drop table
+
+-- DROP TABLE ods.flights;
+
+CREATE TABLE ods.flights (
+	"year" int4 NULL,
+	quarter int4 NULL,
+	"month" int4 NULL,
+	flight_date date NULL,
+	dep_time time NULL,
+	crs_dep_time time NULL,
+	air_time interval NULL,
+	dep_delay_minutes int4 NULL,
+	cancelled bool NULL,
+	cancellation_code bpchar(1) NULL,
+	weather_delay int4 NULL,
+	reporting_airline varchar(50) NULL,
+	tail_number varchar(50) NULL,
+	flight_number varchar(10) NULL,
+	distance int4 NULL,
+	origin varchar(10) NULL,
+	dest varchar(10) NULL,
+	ods_loaded_ts timestamp NULL DEFAULT now()
+);
