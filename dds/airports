@@ -1,0 +1,14 @@
+-- dds.airports определение
+
+-- Drop table
+
+-- DROP TABLE dds.airports;
+
+CREATE TABLE dds.airports (
+	id serial4 NOT NULL,
+	icao_code varchar(10) NOT NULL,
+	iata_code varchar(10) NOT NULL,
+	"name" varchar(100) NOT NULL,
+	dds_loaded_ts timestamp NULL DEFAULT now(),
+	CONSTRAINT airports_pkey PRIMARY KEY (id)
+);
