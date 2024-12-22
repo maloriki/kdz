@@ -118,3 +118,29 @@ plt.xticks(fontsize=8)
 plt.yticks(fontsize=8)
 plt.grid()
 plt.show()
+
+# 9. Средняя задержка по погодным условиям
+average_delay_by_weather = data.groupby('weather_type_name')['dep_delay_min'].mean().sort_values(ascending=False)
+
+plt.figure(figsize=(12, 8))
+average_delay_by_weather.plot(kind='bar', color='teal', edgecolor='black')
+plt.xlabel('Тип погоды', fontsize=10)
+plt.ylabel('Средняя задержка (минуты)', fontsize=10)
+plt.title('Средняя задержка по погодным условиям', fontsize=12)
+plt.xticks(fontsize=8, rotation=45)
+plt.yticks(fontsize=8)
+plt.grid(axis='y')
+plt.show()
+
+# 10. Количество рейсов по часам
+flights_by_hour = data.groupby('hour').size()
+
+plt.figure(figsize=(12, 8))
+flights_by_hour.plot(kind='bar', color='salmon', edgecolor='black')
+plt.xlabel('Час дня', fontsize=10)
+plt.ylabel('Количество рейсов', fontsize=10)
+plt.title('Количество рейсов по часам', fontsize=12)
+plt.xticks(fontsize=8)
+plt.yticks(fontsize=8)
+plt.grid(axis='y')
+plt.show()
