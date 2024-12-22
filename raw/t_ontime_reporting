@@ -1,0 +1,25 @@
+-- raw.t_ontime_reporting определение
+
+-- Drop table
+
+-- DROP TABLE raw.t_ontime_reporting;
+
+CREATE TABLE raw.t_ontime_reporting (
+	"YEAR" int4 NULL,
+	"QUARTER" int4 NULL,
+	"MONTH" int4 NULL,
+	"FL_DATE" varchar(50) NULL,
+	"OP_UNIQUE_CARRIER" varchar(50) NULL,
+	"TAIL_NUM" varchar(50) NULL,
+	"OP_CARRIER_FL_NUM" int4 NULL,
+	"ORIGIN" varchar(50) NULL,
+	"DEST" varchar(50) NULL,
+	"CRS_DEP_TIME" int4 NULL,
+	"DEP_TIME" int4 NULL,
+	"DEP_DELAY_NEW" float4 NULL,
+	"CANCELLED" float4 NULL,
+	"CANCELLATION_CODE" varchar(50) NULL,
+	"AIR_TIME" int4 NULL,
+	"DISTANCE" float4 NULL,
+	"WEATHER_DELAY" float4 NULL
+);
