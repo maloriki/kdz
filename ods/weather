@@ -1,0 +1,23 @@
+-- ods.weather определение
+
+-- Drop table
+
+-- DROP TABLE ods.weather;
+
+CREATE TABLE ods.weather (
+	iata_code varchar(10) NULL DEFAULT 'ONT'::character varying,
+	local_datetime timestamp NULL,
+	t_air_temperature float8 NULL,
+	p0_sea_lvl float8 NULL,
+	p_station_lvl float8 NULL,
+	u_humidity float8 NULL,
+	dd_wind_direction varchar(100) NULL,
+	ff_wind_speed float8 NULL,
+	ff10_max_gust_value float8 NULL,
+	ww_present varchar(50) NULL,
+	ww_recent varchar(50) NULL,
+	c_total_clouds varchar(100) NULL,
+	vv_horizontal_visibility float8 NULL,
+	td_temperature_dewpoint float8 NULL,
+	ods_loaded_ts timestamp NULL DEFAULT now()
+);
