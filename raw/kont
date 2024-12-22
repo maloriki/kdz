@@ -1,0 +1,21 @@
+-- raw.kont определение
+
+-- Drop table
+
+-- DROP TABLE raw.kont;
+
+CREATE TABLE raw.kont (
+	local_time timestamp NULL,
+	t int4 NULL,
+	p0 float8 NULL,
+	p float8 NULL,
+	u int4 NULL,
+	dd varchar(50) NULL,
+	ff int4 NULL,
+	ff10 int4 NULL,
+	ww varchar(50) NULL,
+	wwr varchar(50) NULL,
+	c varchar(100) NULL,
+	vv float8 NULL,
+	td float8 NULL
+);
