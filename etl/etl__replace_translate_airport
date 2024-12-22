@@ -1,0 +1,24 @@
+-- DROP PROCEDURE etl.etl__replace_translate_airport();
+
+CREATE OR REPLACE PROCEDURE etl.etl__replace_translate_airport()
+ LANGUAGE plpgsql
+AS $procedure$
+BEGIN
+    -- Удаляем все записи из таблицы перед загрузкой новых данных
+    DELETE FROM etl.id_translate_airport;
+
+    -- Перезаписываем данные из таблицы ods.airports
+    INSERT INTO etl.id_translate_airport (
+        airport_id,
+        icao_code,
+        iata_code
+    )
+    SELECT DISTINCT
+        CAST(id AS INT) AS airport_id, -- Преобразование ID в INT
+        icao_code AS icao_code,           -- ICAO код аэропорта
+        iata_code                     -- IATA код аэропорта
+    FROM ods.airports;
+
+END;
+$procedure$
+;
