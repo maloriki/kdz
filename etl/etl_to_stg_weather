@@ -1,0 +1,90 @@
+-- DROP PROCEDURE etl.etl_to_stg_weather();
+
+CREATE OR REPLACE PROCEDURE etl.etl_to_stg_weather()
+ LANGUAGE plpgsql
+AS $procedure$
+BEGIN
+
+    -------------------------------------------------------------------------
+    -- 1. Добавляем в ETL.TABLE_FOR_ETL новые даты (ODS_LOADED_TS), которых 
+    --    ещё нет в таблице ETL.TABLE_FOR_ETL с флагом 1.
+    -------------------------------------------------------------------------
+    INSERT INTO ETL.TABLE_FOR_ETL (
+        SOURCE_NAME,
+        TARGET_NAME,
+        LOADED_TS,
+        FLAG
+    )
+    SELECT DISTINCT
+        'ODS.WEATHER' AS SOURCE_NAME,
+        'STG.WEATHER' AS TARGET_NAME,
+        ODS_LOADED_TS AS LOADED_TS,
+        0             AS FLAG
+    FROM ODS.WEATHER
+    WHERE ODS_LOADED_TS NOT IN (
+        SELECT DISTINCT LOADED_TS
+        FROM ETL.TABLE_FOR_ETL
+        WHERE SOURCE_NAME = 'ODS.WEATHER'
+          AND TARGET_NAME = 'STG.WEATHER'
+          AND FLAG = 1
+    );
+
+    -------------------------------------------------------------------------
+    -- 2. Вставляем данные из ODS.WEATHER в STG.WEATHER,
+    --    пропуская уже загруженные (по дате ODS_LOADED_TS).
+    --
+    -- Теперь u_humidity и ff10_max_gust_value в STG - double precision,
+    -- поэтому никаких CAST к int не требуется.
+    -------------------------------------------------------------------------
+    INSERT INTO STG.WEATHER (
+        icao_code,
+        local_datetime,
+        t_air_temperature,
+        p0_sea_lvl,
+        p_station_lvl,
+        u_humidity,
+        dd_wind_direction,
+        ff_wind_speed,
+        ff10_max_gust_value,
+        ww_present,
+        ww_recent,
+        c_total_clouds,
+        vv_horizontal_visibility,
+        td_temperature_dewpoint
+    )
+    SELECT
+        iata_code                 AS icao_code,
+        local_datetime,
+        t_air_temperature,
+        p0_sea_lvl,
+        p_station_lvl,
+        u_humidity,
+        dd_wind_direction,
+        ff_wind_speed,
+        ff10_max_gust_value,
+        ww_present,
+        ww_recent,
+        c_total_clouds,
+        vv_horizontal_visibility,
+        td_temperature_dewpoint
+    FROM ODS.WEATHER
+    WHERE ODS_LOADED_TS NOT IN (
+        SELECT DISTINCT LOADED_TS
+        FROM ETL.TABLE_FOR_ETL
+        WHERE SOURCE_NAME = 'ODS.WEATHER'
+          AND TARGET_NAME = 'STG.WEATHER'
+          AND FLAG = 1
+    );
+
+    -------------------------------------------------------------------------
+    -- 3. Обновляем флаг в ETL.TABLE_FOR_ETL для успешно загруженных дат
+    -------------------------------------------------------------------------
+    UPDATE ETL.TABLE_FOR_ETL
+       SET FLAG = 1
+     WHERE SOURCE_NAME = 'ODS.WEATHER'
+       AND TARGET_NAME = 'STG.WEATHER'
+       AND FLAG = 0;
+
+END;
+$procedure$
+;
