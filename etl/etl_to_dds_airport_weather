@@ -1,0 +1,49 @@
+-- DROP PROCEDURE etl.etl_to_dds_airport_weather();
+
+CREATE OR REPLACE PROCEDURE etl.etl_to_dds_airport_weather()
+ LANGUAGE plpgsql
+AS $procedure$
+BEGIN
+    -- Шаг 1: Вставка мета-данных для новых данных из STG.WEATHER
+    INSERT INTO ETL.TABLE_FOR_ETL (SOURCE_NAME, TARGET_NAME, LOADED_TS, FLAG)
+    SELECT DISTINCT 'STG.WEATHER', 'DDS.AIRPORT_WEATHER', STG_LOADED_TS, 0
+    FROM STG.WEATHER
+    WHERE STG_LOADED_TS NOT IN (
+        SELECT DISTINCT LOADED_TS
+        FROM ETL.TABLE_FOR_ETL
+        WHERE SOURCE_NAME = 'stg.weather'
+          AND TARGET_NAME = 'dds.airport_weather'
+          AND FLAG = 1
+    );
+
+    -- Шаг 2: Перенос данных из STG.WEATHER в DDS.AIRPORT_WEATHER с преобразованием
+    INSERT INTO DDS.AIRPORT_WEATHER (
+        AIRPORT_ID, WEATHER_TYPE, TEMPERATURE, WIND_SPEED, VISIBILITY, DATE_START, DATE_END
+    )
+    SELECT
+        A.ID AS AIRPORT_ID,
+        W.WW_PRESENT AS WEATHER_TYPE,
+        W.T_AIR_TEMPERATURE AS TEMPERATURE,
+        W.FF_WIND_SPEED AS WIND_SPEED,
+        W.VV_HORIZONTAL_VISIBILITY AS VISIBILITY,
+        W.LOCAL_DATETIME AS DATE_START,
+        W.LOCAL_DATETIME + interval '1 hour' AS DATE_END
+    FROM STG.WEATHER W
+    JOIN DDS.AIRPORTS A ON A.IATA_CODE = W.IATA_CODE
+    WHERE W.STG_LOADED_TS NOT IN (
+        SELECT DISTINCT LOADED_TS
+        FROM ETL.TABLE_FOR_ETL
+        WHERE SOURCE_NAME = 'stg.weather'
+          AND TARGET_NAME = 'dds.airport_weather'
+          AND FLAG = 1
+    );
+
+    -- Шаг 3: Обновление флагов для успешно загруженных данных
+    UPDATE ETL.TABLE_FOR_ETL
+    SET FLAG = 1
+    WHERE SOURCE_NAME = 'stg.weather'
+      AND TARGET_NAME = 'dds.airport_weather'
+      AND FLAG = 0;
+END;
+$procedure$
+;
