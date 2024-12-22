@@ -1,0 +1,22 @@
+-- DROP PROCEDURE etl.etl_to_dds_airports();
+
+CREATE OR REPLACE PROCEDURE etl.etl_to_dds_airports()
+ LANGUAGE plpgsql
+AS $procedure$
+BEGIN
+    -- Шаг 1: Очистка данных в DDS.AIRPORTS
+    DELETE FROM DDS.AIRPORTS;
+
+    -- Шаг 2: Перенос данных из ODS.AIRPORTS в DDS.AIRPORTS
+    INSERT INTO DDS.AIRPORTS (
+    ICAO_CODE, IATA_CODE, NAME, DDS_LOADED_TS
+)
+SELECT
+    ICAO_CODE,
+    IATA_CODE,
+    NAME,
+    NOW()
+FROM ODS.AIRPORTS;
+END;
+$procedure$
+;
